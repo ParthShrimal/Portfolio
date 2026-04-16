@@ -126,8 +126,15 @@ body.custom-cursor { cursor: none; }
 .delay-3 { transition-delay: 0.3s; }
 
 /* CONTAINER */
-.container { height:100vh; overflow-y:auto; overflow-x:hidden; scroll-behavior: smooth; position: relative; }
-
+.container { 
+  height: 100vh; 
+  height: 100dvh; /* NEW: Fixes iOS address bar gap */
+  overflow-y: auto; 
+  overflow-x: hidden; 
+  scroll-behavior: smooth; 
+  position: relative; 
+  -webkit-overflow-scrolling: touch; /* NEW: Enables smooth momentum scrolling on iPhones */
+}
 /* NAVBAR */
 nav.navbar {
   position:fixed; top:0; width:100%; padding:25px 10%; display:flex; justify-content:space-between; align-items: center;
@@ -143,8 +150,16 @@ nav.navbar a:hover, nav.navbar a.active { color:var(--accent); }
 
 /* SHUTTER EFFECT */
 section {
-  position: sticky; min-height:100vh; display:flex; flex-direction: column; padding:140px 10% 100px 10%; 
-  background: var(--bg-dark); border-top: 1px solid rgba(255,255,255,0.02); box-shadow: 0 -20px 40px rgba(0,0,0,0.8); 
+  position: -webkit-sticky; /* NEW: Apple-specific sticky prefix */
+  position: sticky; 
+  min-height: 100vh; 
+  min-height: 100dvh; /* NEW: Fixes iOS address bar gap */
+  display: flex; 
+  flex-direction: column; 
+  padding: 140px 10% 100px 10%; 
+  background: var(--bg-dark); 
+  border-top: 1px solid rgba(255,255,255,0.02); 
+  box-shadow: 0 -20px 40px rgba(0,0,0,0.8); 
 }
 .hero-content, .about-wrapper, .education-wrapper, .skills-wrapper, .projects-wrapper, .contact-wrapper { margin: auto 0; width: 100%; }
 section:nth-child(even) { background: var(--bg-panel); }
@@ -494,7 +509,12 @@ section:nth-child(even) { background: var(--bg-panel); }
   nav.navbar h2 { font-size: 1.4rem; margin-bottom: 5px; }
   nav.navbar div { flex-wrap: wrap; justify-content: center; gap: 12px; width: 100%; }
   nav.navbar a { font-size: 0.8rem; }
-  section { padding: 130px 5% 60px 5%; }
+  
+  /* FIX 1: Pushes all section content higher up so it doesn't get cut off */
+  section { 
+    padding: 130px 5% calc(100px + env(safe-area-inset-bottom)) 5%; 
+  }
+  
   .hero h1 { font-size: 2.8rem; letter-spacing: -1px; }
   .hero p { font-size: 1rem; margin-top: 20px; }
   .section-header h2 { font-size: 2rem; }
@@ -509,15 +529,17 @@ section:nth-child(even) { background: var(--bg-panel); }
   .timeline-content h3 { font-size: 1.2rem; }
   .timeline-content h4 { font-size: 0.9rem; }
   .terminal-window { height: 75vh; }
+  
+  /* FIX 2: Adds extra space for the footer and pushes the contact form up */
+  .footer { 
+    padding: 30px 5% calc(30px + env(safe-area-inset-bottom)) 5%; 
+  }
+  .footer-content { flex-direction: column; justify-content: center; text-align: center; }
+  #contact .contact-wrapper { margin-bottom: 180px; }
+  
+  .club-card { flex-direction: column; text-align: center; gap: 20px; padding: 30px 20px; }
+  .club-image { width: 180px; height: 180px; margin: 0 auto; }
 }
-@media(max-width: 380px) {
-  .hero h1 { font-size: 2.4rem; }
-  nav.navbar div { gap: 8px; }
-  nav.navbar a { font-size: 0.75rem; }
-}
-
-.club-card { flex-direction: column; text-align: center; gap: 20px; padding: 30px 20px; }
-.club-image { width: 180px; height: 180px; margin: 0 auto; }
 
 </style>
 </head>
@@ -831,6 +853,18 @@ function updateCounter() {
 
 // Start the sequence when the page loads
 document.addEventListener("DOMContentLoaded", updateCounter);
+
+/* iOS FAILSAFE: Force hide preloader if it gets stuck */
+setTimeout(() => {
+  const preloaderCheck = document.getElementById('preloader');
+  if (preloaderCheck && !preloaderCheck.classList.contains('hidden')) {
+    preloaderCheck.classList.add('hidden');
+    setTimeout(() => {
+      preloaderCheck.style.display = 'none';
+      type(); // Start typewriter
+    }, 800);
+  }
+}, 3000); // Forces open after 3 seconds maximum
 
 /* TYPEWRITER LOGIC */
 const textElement = document.querySelector('.typewriter-text');
