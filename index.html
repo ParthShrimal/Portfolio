@@ -174,6 +174,9 @@ section:nth-child(even) { background: var(--bg-panel); }
 .hero-content { max-width:800px; z-index: 10; position: relative; margin: auto 0;}
 .hero h1 { font-size:4.5rem; line-height: 1.1; font-weight: 700; letter-spacing: -2px;}
 .hero span { color: var(--accent); }
+.typewriter-text {
+  white-space: nowrap; /* Forces the entire phrase to stay on one line */
+}
 .typewriter-text::after { content: '|'; color: var(--accent); animation: blink 1s step-start infinite; }
 @keyframes blink { 50% { opacity: 0; } }
 .hero p { margin-top:30px; color:var(--text-muted); font-size: 1.2rem; line-height: 1.6; max-width: 600px;}
